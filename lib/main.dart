@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'ecranfilm.dart';
 
 void main() => runApp(const MyApp());
 
@@ -52,11 +53,20 @@ class _MovieListScreenState extends State<MovieListScreen> {
                   return ListTile(
                     title: Text(_movies[index].title),
                     subtitle: Text(_movies[index].year),
-                    leading: Image.network(_movies[index].poster),
+                    leading: _movies[index].poster != 'N/A'
+                           ? Image.network(_movies[index].poster)
+                           : const Icon(Icons.movie),
                     trailing: Text(_movies[index].type),
-                  
-
-                    
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetailsScreen(
+                            imdbID: _movies[index].imdbID,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -84,7 +94,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
       throw Exception('Failed to load movies');
     }
   }
-  
+
   Texte(String type) {}
 }
 
@@ -93,9 +103,10 @@ class Movie {
   final String year;
   final String poster;
   final String type;
+  final String imdbID;
 
-
-  Movie({required this.title, required this.year , required this.poster, required this.type, });
+  Movie(
+      {required this.title, required this.year, required this.poster, required this.type, required this.imdbID});
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
@@ -103,8 +114,7 @@ class Movie {
       year: json['Year'],
       poster: json['Poster'],
       type: json['Type'],
-      
-
+      imdbID: json['imdbID'],
     );
   }
 }
