@@ -1,120 +1,302 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'ecranfilm.dart';
+import 'welcome.dart';
+import 'insription.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'OMDb API Demo',
-      home: MovieListScreen(),
+    return MaterialApp(
+      title: 'Demo HTTP',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'Persona World'),
     );
   }
 }
 
-class MovieListScreen extends StatefulWidget {
-  const MovieListScreen({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
 
   @override
-  _MovieListScreenState createState() => _MovieListScreenState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MovieListScreenState extends State<MovieListScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<Movie> _movies = [];
-
+class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OMDb Movie Search'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Center(
         child: Column(
-          children: [
-            TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(labelText: 'Search Movies'),
-              onSubmitted: (value) {
-                _searchMovies(value);
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => WelcomePage(title: widget.title)));
               },
+              label: const Text('Parcourir les articles'),
             ),
-            const SizedBox(height: 16.0),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _movies.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(_movies[index].title),
-                    subtitle: Text(_movies[index].year),
-                    leading: _movies[index].poster != 'N/A'
-                           ? Image.network(_movies[index].poster)
-                           : const Icon(Icons.movie),
-                    trailing: Text(_movies[index].type),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MovieDetailsScreen(
-                            imdbID: _movies[index].imdbID,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+            const SizedBox(height: 16),
+            FloatingActionButton.extended(
+              icon: const Icon(Icons.storage),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => const GestionStocksPage()));
+              },
+              label: const Text('Gestion Stocks'),
+            ),
+            const SizedBox(height: 16),
+            FloatingActionButton.extended(
+              icon: const Icon(Icons.login),
+              backgroundColor: Colors.deepPurple.shade800,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => const LoginPage()));
+              },
+              label: const Text('Login'),
+            ),
+            const SizedBox(height: 16),
+            FloatingActionButton.extended(
+              icon: const Icon(Icons.login),
+              backgroundColor: Colors.deepPurple.shade800,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>  RegPage(title: widget.title)));
+              },
+              label: const Text('Inscription'),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Future<void> _searchMovies(String query) async {
-    const apiKey = 'f41866d6';
-    final apiUrl = 'http://www.omdbapi.com/?apikey=$apiKey&s=$query';
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
-    final response = await http.get(Uri.parse(apiUrl));
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      final List<dynamic> movies = data['Search'];
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  
+  Future<void> _login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
 
-      setState(() {
-        _movies = movies.map((movie) => Movie.fromJson(movie)).toList();
-      });
-    } else {
-      throw Exception('Failed to load movies');
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez remplir tous les champs')),
+      );
+      return;
+    }
+
+    final url = Uri.parse('http://10.0.2.2:3000/login');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Connexion réussie')),
+        );
+        // Navigation vers une autre page
+        Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => const WelcomePage(title: 'Produits'),
+          ),
+        );
+      } else {
+        // Affichage du message d'erreur si la connexion échoue
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email ou mot de passe incorrect')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erreur de connexion')),
+      );
     }
   }
 
-  Texte(String type) {}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: const Icon(Icons.arrow_back),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+     
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.deepPurple.shade900,
+              Colors.deepPurple.shade500,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Card(
+            margin: const EdgeInsets.all(20),
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.person_outline,
+                      size: 80,
+                      color: Colors.deepPurple,
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'E-mail',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        prefixIcon: const Icon(Icons.lock),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter password';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: _login,
+                      child: const Text('Login'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class Movie {
-  final String title;
-  final String year;
-  final String poster;
-  final String type;
-  final String imdbID;
+class GestionStocksPage extends StatefulWidget {
+  const GestionStocksPage({super.key});
 
-  Movie(
-      {required this.title, required this.year, required this.poster, required this.type, required this.imdbID});
+  @override
+  State<GestionStocksPage> createState() => _GestionStocksPageState();
+}
 
-  factory Movie.fromJson(Map<String, dynamic> json) {
-    return Movie(
-      title: json['Title'],
-      year: json['Year'],
-      poster: json['Poster'],
-      type: json['Type'],
-      imdbID: json['imdbID'],
+class _GestionStocksPageState extends State<GestionStocksPage> {
+  final TextEditingController _searchController = TextEditingController();
+  
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gestion Stocks'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                labelText: 'Search',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          // Rest of your stock management UI
+        ],
+      ),
     );
   }
 }
