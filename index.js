@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 const db = mysql.createConnection({
   host: '10.51.7.100', // Remplacez par l'IP de votre serveur MySQL
   user: 'mustaphadmin',         // Nom d'utilisateur de la base de données
-  password: 'azerty',     // Mot de passe de la base de données
+  password: '1230',     // Mot de passe de la base de données
   database: 'site commerce'            // Nom de la base de données
 });
 
