@@ -27,36 +27,6 @@ db.connect((err) => {
 });
 
 
-
-// Endpoint pour récupérer toutes les nations
-app.get('/produits', (req, res) => {
-  const sql = 'SELECT * FROM produits';
-  db.query(sql, (err, results) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-    res.json(results);
-  });
-});
-
-app.get('/produits/:nom', (req, res) => {
-    // Capture le paramètre 'nom' de l'URL
-    const nom = '%'+req.params.nom+'%';
-    // Crée la requête SQL avec un paramètre pour le nom
-    const sql = 'SELECT * FROM produits WHERE nom LIKE ?';
-    db.query(sql, [nom], (err, results) => {
-    if (err) {
-    return res.status(500).send(err);
-    }
-    if (results.length === 0) {
-    // Si aucun produit n'est trouvée, renvoyer une erreur 404
-    return res.status(404).json({ message: 'Produits non trouvés' });
-    }
-    // Si des résultats sont trouvés, renvoyer les données
-    res.json(results);
-    });
-    })
-
 // Endpoint pour ajouter un nouvel utilisateur
 app.post('/user', async  (req, res) => {
   const { nom, prenom, email, password } = req.body;
@@ -120,6 +90,67 @@ app.post('/login', async (req, res) => {
     });
   });
 });
+
+// Add these endpoints after your existing code but before app.listen()
+
+// Endpoint to add a new product
+app.post('/produit', (req, res) => {
+  const { nom, description, prix, quantite } = req.body;
+  const sql = 'INSERT INTO produit (nom, description, prix, quantite) VALUES (?, ?, ?, ?)';
+  
+  db.query(sql, [nom, description, prix, quantite], (err, result) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.json({ 
+      id: result.insertId,
+      nom,
+      description, 
+      prix,
+      quantite
+    });
+  });
+});
+
+// Endpoint to get all products
+app.get('/produit', (req, res) => {
+  const sql = 'SELECT * FROM produit';
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.json(results);
+  });
+});
+
+// Endpoint to get a single product by ID
+app.get('/produits/:id', (req, res) => {
+  const sql = 'SELECT * FROM produit WHERE id = ?';
+  db.query(sql, [req.params.id], (err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(results[0]);
+  });
+});
+
+// Endpoint to update a product
+app.put('/produits/:id', (req, res) => {
+  const { nom, description, prix, image } = req.body;
+  const sql = 'UPDATE produit SET nom = ?, description = ?, prix = ?, image = ? WHERE id = ?';
+  
+  db.query(sql, [nom, description, prix, image, req.params.id], (err, result) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.json({ message: 'Product updated successfully' });
+  });
+});
+
+
 
 // Démarrage du serveur
 app.listen(port, () => {

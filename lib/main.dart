@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'welcome.dart';
-import 'insription.dart';
+import 'inscription.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,13 +14,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Demo HTTP',
+      title: 'Persona Admin Dashboard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.dark(),
+        fontFamily: 'Roboto',
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Persona World'),
+      home: const MyHomePage(title: 'Persona WORLD '),
     );
   }
 }
@@ -39,58 +40,61 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        backgroundColor: Colors.black,
+        title: Text(widget.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
+        centerTitle: true,
+        elevation: 10,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => WelcomePage(title: widget.title)));
-              },
-              label: const Text('Parcourir les articles'),
-            ),
-            const SizedBox(height: 16),
-            FloatingActionButton.extended(
-              icon: const Icon(Icons.storage),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => const GestionStocksPage()));
-              },
-              label: const Text('Gestion Stocks'),
-            ),
-            const SizedBox(height: 16),
-            FloatingActionButton.extended(
-              icon: const Icon(Icons.login),
-              backgroundColor: Colors.deepPurple.shade800,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => const LoginPage()));
-              },
-              label: const Text('Login'),
-            ),
-            const SizedBox(height: 16),
-            FloatingActionButton.extended(
-              icon: const Icon(Icons.login),
-              backgroundColor: Colors.deepPurple.shade800,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) =>  RegPage(title: widget.title)));
-              },
-              label: const Text('Inscription'),
-            ),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/persona_admin_bg.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton.icon(
+                icon: Icon(Icons.admin_panel_settings, color: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade800,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 5,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => const LoginPage()));
+                },
+                label: const Text('Connexion', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                icon: Icon(Icons.person_add, color: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade800,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 5,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>  RegPage(title: widget.title)));
+                },
+                label: const Text('Inscription', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -142,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.push<void>(
           context,
           MaterialPageRoute<void>(
-            builder: (context) => const WelcomePage(title: 'Produits'),
+            builder: (context) => const WelcomePage(title: 'Tableau de bord'),
           ),
         );
       } else {
@@ -254,48 +258,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class GestionStocksPage extends StatefulWidget {
-  const GestionStocksPage({super.key});
-
-  @override
-  State<GestionStocksPage> createState() => _GestionStocksPageState();
-}
-
-class _GestionStocksPageState extends State<GestionStocksPage> {
-  final TextEditingController _searchController = TextEditingController();
-  
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gestion Stocks'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          // Rest of your stock management UI
-        ],
       ),
     );
   }

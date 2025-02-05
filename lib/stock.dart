@@ -36,7 +36,7 @@ class _ProduitsPageState extends State<ProduitsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Produits'),
+        title: const Text('Menu'),
         backgroundColor: const Color.fromARGB(255, 109, 31, 139),
       ),
       body: Center(

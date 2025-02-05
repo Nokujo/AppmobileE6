@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'main.dart';
+import 'inscription.dart';
+import 'newproduit.dart';
+import 'gererproduit.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key, required this.title});
@@ -12,73 +13,105 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  final TextEditingController _produitsController = TextEditingController();
-  List<Produits> _produits = [];
+  int _selectedIndex = 0;
 
-  Future<void> _searchProduits(String query) async {
-    final url = Uri.parse('http://10.0.2.2:3000/produits/$query');
-    
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        _produits = data.map((produit) => Produits.fromJson(produit)).toList();
-      });
-    } else {
-      print('Erreur : ${response.statusCode}');
-    }
+  void _itemClique(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Produits'),
-        backgroundColor: const Color.fromARGB(255, 109, 31, 139),
+        title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.deepPurpleAccent,
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _produitsController,
-              decoration: const InputDecoration(labelText: 'Recherche dans le Velvet Room'),
-              onSubmitted: _searchProduits,
-            ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => NewProduit()));
+                }, 
+                child: PersonaStyledCard(title: "Ajouter un nouveau produit", icon: Icons.add)
+              ),
+              SizedBox(height: 50),
+                ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => GererProduit()));
+                }, 
+                child: PersonaStyledCard(title: "Gérer les produits", icon: Icons.manage_search)
+              ),
+              SizedBox(height: 50),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+                },
+                child: PersonaStyledCard(title: "Gérer les commandes", icon: Icons.shopping_cart)
+              ),
+            ],
           ),
-          const SizedBox(height: 16.0),
-          Expanded(
-            child: _produits.isNotEmpty
-                ? ListView.builder(
-                    itemCount: _produits.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(_produits[index].nom ?? "Nom inconnu"),
-                        subtitle: Text(_produits[index].description ?? "Description non disponible"),
-                      );
-                    },
-                  )
-                : const Center(
-                    child: Text('Aucun produit trouvé.', style: TextStyle(fontSize: 16, color: Colors.grey)),
-                  ),
-          ),
+        ),
+      ),      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box_rounded), label: 'Ajouter un produit'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Compte'),
+          
         ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _itemClique,
       ),
     );
   }
 }
 
-class Produits {
-  final String? nom;
-  final String? description;
+class PersonaStyledCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
 
-  Produits({this.nom, this.description});
+  const PersonaStyledCard({Key? key, required this.title, required this.icon}) : super(key: key);
 
-  factory Produits.fromJson(Map<String, dynamic> json) {
-    return Produits(
-      nom: json['nom'],
-      description: json['description'],
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      margin: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [const Color.fromARGB(255, 23, 42, 214), const Color.fromARGB(255, 202, 23, 23)]),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(color: Colors.black54, blurRadius: 10, offset: Offset(3, 3))
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white, size: 40),
+          SizedBox(width: 15),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              shadows: [Shadow(blurRadius: 5, color: Colors.black, offset: Offset(2, 2))],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
