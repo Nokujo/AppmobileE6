@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'main.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,42 +39,40 @@ class _RegPageState extends State<RegPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> envoyerDemande() async {
-  const String apiUrl = "http://10.0.2.2:3000/user";
+    const String apiUrl = "http://10.0.2.2:3000/user";
 
-
-  // Envoi de la requête POST
-  final response = await http.post(
-    Uri.parse(apiUrl),
-    headers: {"Content-Type": "application/json"},
-    body: jsonEncode({
-      "nom": nomController.text,
-      "prenom": prenomController.text,
-      "email": emailController.text,
-      "password": passwordController.text,
-    }),
-  );
-
-  // Affichage des détails de la réponse dans la console
-  print("Réponse de l'API : ${response.statusCode}");
-  if (response.statusCode == 200) {
-    // Success
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Demande envoyée avec succès.")),
+    // Envoi de la requête POST
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "nom": nomController.text,
+        "prenom": prenomController.text,
+        "email": emailController.text,
+        "password": passwordController.text,
+      }),
     );
 
-    nomController.clear();
-    prenomController.clear();
-    emailController.clear();
-    passwordController.clear();
-  } else {
-    // Affiche les erreurs éventuelles dans la console
-    print("Erreur de l'API : ${response.body}");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Erreur lors de l'envoi de la demande.")),
-    );
+    // Affichage des détails de la réponse dans la console
+    print("Réponse de l'API : ${response.statusCode}");
+    if (response.statusCode == 200) {
+      // Success
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Demande envoyée avec succès.")),
+      );
+
+      nomController.clear();
+      prenomController.clear();
+      emailController.clear();
+      passwordController.clear();
+    } else {
+      // Affiche les erreurs éventuelles dans la console
+      print("Erreur de l'API : ${response.body}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Erreur lors de l'envoi de la demande.")),
+      );
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {

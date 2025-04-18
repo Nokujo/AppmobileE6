@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class GererProduit extends StatefulWidget {
-  const GererProduit({Key? key}) : super(key: key);
+  const GererProduit({super.key});
 
   @override
   State<GererProduit> createState() => _GererProduitState();
@@ -75,8 +75,8 @@ class _GererProduitState extends State<GererProduit> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Produit ajouté avec succès'),
+                        const SnackBar(
+                          content: Text('Produit ajouté avec succès'),
                           backgroundColor: personaRed,
                           behavior: SnackBarBehavior.floating,
                         ),

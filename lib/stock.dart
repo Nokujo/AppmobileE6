@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'main.dart';
-
 
 class ProduitsPage extends StatefulWidget {
   const ProduitsPage({super.key, required this.title});
@@ -19,13 +17,14 @@ class _ProduitsPageState extends State<ProduitsPage> {
 
   Future<void> _searchProduits(String query) async {
     final url = Uri.parse('http://10.0.2.2:3000/produits/$query');
-    
+
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
-        _produits = data.map((produits) => Produits.fromJson(produits)).toList();
+        _produits =
+            data.map((produits) => Produits.fromJson(produits)).toList();
       });
     } else {
       print('Erreur : ${response.statusCode}');
@@ -45,7 +44,8 @@ class _ProduitsPageState extends State<ProduitsPage> {
           children: <Widget>[
             TextField(
               controller: _produitsController,
-              decoration: const InputDecoration(labelText: 'Recherche dans le Velvet Room'),
+              decoration: const InputDecoration(
+                  labelText: 'Recherche dans le Velvet Room'),
               onSubmitted: (value) {
                 _searchProduits(value);
               },
@@ -57,7 +57,8 @@ class _ProduitsPageState extends State<ProduitsPage> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(_produits[index].nom ?? "Nom inconnu"),
-                    subtitle: Text(_produits[index].description ?? "Description non disponible"),
+                    subtitle: Text(_produits[index].description ??
+                        "Description non disponible"),
                   );
                 },
               ),
@@ -89,8 +90,8 @@ class _GestionStocksPageState extends State<GestionStocksPage> {
 
     setState(() {
       _stocks = allStocks
-          .where((stock) =>
-              stock.name.toLowerCase().contains(query.toLowerCase()))
+          .where(
+              (stock) => stock.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -128,7 +129,8 @@ class _GestionStocksPageState extends State<GestionStocksPage> {
                         return ListTile(
                           leading: const Icon(Icons.inventory),
                           title: Text(_stocks[index].name),
-                          subtitle: Text('Quantité : ${_stocks[index].quantity}'),
+                          subtitle:
+                              Text('Quantité : ${_stocks[index].quantity}'),
                         );
                       },
                     )

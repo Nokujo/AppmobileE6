@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Persona Admin Dashboard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.dark(),
+        colorScheme: const ColorScheme.dark(),
         fontFamily: 'Roboto',
         useMaterial3: true,
       ),
@@ -41,12 +41,16 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text(widget.title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
+        title: Text(widget.title,
+            style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 22)),
         centerTitle: true,
         elevation: 10,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/persona_admin_bg.jpg'),
             fit: BoxFit.cover,
@@ -57,10 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ElevatedButton.icon(
-                icon: Icon(Icons.admin_panel_settings, color: Colors.white),
+                icon:
+                    const Icon(Icons.admin_panel_settings, color: Colors.white),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red.shade800,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -68,18 +74,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onPressed: () {
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => const LoginPage()));
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              const LoginPage()));
                 },
-                label: const Text('Connexion', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                label: const Text('Connexion',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                icon: Icon(Icons.person_add, color: Colors.white),
+                icon: const Icon(Icons.person_add, color: Colors.white),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue.shade800,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -87,11 +99,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onPressed: () {
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) =>  RegPage(title: widget.title)));
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              RegPage(title: widget.title)));
                 },
-                label: const Text('Inscription', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                label: const Text('Inscription',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -112,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   Future<void> _login() async {
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -172,7 +189,6 @@ class _LoginPageState extends State<LoginPage> {
         child: const Icon(Icons.arrow_back),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-     
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class NewProduit extends StatefulWidget {
-  const NewProduit({Key? key}) : super(key: key);
+  const NewProduit({super.key});
 
   @override
   State<NewProduit> createState() => _NewProduitState();
@@ -20,7 +20,7 @@ class _NewProduitState extends State<NewProduit> {
   static const personaBlue = Color(0xFF0D1B2A);
   static const personaRed = Color(0xFFD90429);
   static const personaWhite = Color(0xFFF8F9FA);
-  
+
   get http => null;
 
   @override
@@ -71,9 +71,8 @@ class _NewProduitState extends State<NewProduit> {
                 const SizedBox(height: 20),
                 buildPersonaTextField(
                   controller: _descriptionController,
-                   label: 'Description',
+                  label: 'Description',
                   icon: Icons.description,
-                 
                 ),
                 const SizedBox(height: 20),
                 buildPersonaTextField(
@@ -99,8 +98,8 @@ class _NewProduitState extends State<NewProduit> {
 
                       if (response.statusCode == 200) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Produit ajouté avec succès'),
+                          const SnackBar(
+                            content: Text('Produit ajouté avec succès'),
                             backgroundColor: personaRed,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -138,43 +137,43 @@ class _NewProduitState extends State<NewProduit> {
         ),
       ),
     );
-  }    Widget buildPersonaTextField({
-      required TextEditingController controller,
-      required String label,
-      required IconData icon,
-      TextInputType? keyboardType,
-    }) {
-      return Container(
-        decoration: BoxDecoration(
-          color: personaWhite.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: TextFormField(
-          controller: controller,
-          style: const TextStyle(color: personaWhite),
-          keyboardType: keyboardType,
-          maxLines: label == 'Description' ? null : 1,
-          minLines: label == 'Description' ? 3 : 1,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: personaWhite.withOpacity(0.7)),
-            prefixIcon: Icon(icon, color: personaRed),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: Colors.transparent,
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Ce champ est requis';
-            }
-            return null;
-          },
-        ),
-      );
-    }
   }
 
-  
+  Widget buildPersonaTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: personaWhite.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: TextFormField(
+        controller: controller,
+        style: const TextStyle(color: personaWhite),
+        keyboardType: keyboardType,
+        maxLines: label == 'Description' ? null : 1,
+        minLines: label == 'Description' ? 3 : 1,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: personaWhite.withOpacity(0.7)),
+          prefixIcon: Icon(icon, color: personaRed),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.transparent,
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Ce champ est requis';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+}
