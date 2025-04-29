@@ -3,6 +3,7 @@ import 'main.dart';
 import 'inscription.dart';
 import 'newproduit.dart';
 import 'gererproduit.dart';
+import 'login.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key, required this.title});
@@ -24,51 +25,84 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.deepPurpleAccent,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NewProduit()));
-                }, 
-                child: PersonaStyledCard(title: "Ajouter un nouveau produit", icon: Icons.add)
-              ),
-              SizedBox(height: 50),
-                ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => GererProduit()));
-                }, 
-                child: PersonaStyledCard(title: "Gérer les produits", icon: Icons.manage_search)
-              ),
-              SizedBox(height: 50),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
-                },
-                child: PersonaStyledCard(title: "Gérer les commandes", icon: Icons.shopping_cart)
-              ),
-            ],
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
           ),
         ),
-      ),      bottomNavigationBar: BottomNavigationBar(
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/welcome_back.jpg',
+            fit: BoxFit.fill,
+            color: Colors.black.withOpacity(0.5),
+            colorBlendMode: BlendMode.darken,
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  _personaMenuButton(
+                    context,
+                    title: "Ajouter un nouveau produit",
+                    icon: Icons.add,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => NewProduit()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  _personaMenuButton(
+                    context,
+                    title: "Gérer les produits",
+                    icon: Icons.manage_search,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => GererProduit()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  _personaMenuButton(
+                    context,
+                    title: "Gérer les commandes",
+                    icon: Icons.shopping_cart,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => LoginPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box_rounded), label: 'Ajouter un produit'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Compte'),
-          
+          BottomNavigationBarItem(
+              icon: Icon(Icons.add_box_rounded), label: 'Ajouter un produit'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle), label: 'Compte'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
@@ -76,38 +110,34 @@ class _WelcomePageState extends State<WelcomePage> {
       ),
     );
   }
-}
 
-class PersonaStyledCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-
-  const PersonaStyledCard({Key? key, required this.title, required this.icon}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      margin: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [const Color.fromARGB(255, 23, 42, 214), const Color.fromARGB(255, 202, 23, 23)]),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(color: Colors.black54, blurRadius: 10, offset: Offset(3, 3))
-        ],
+  Widget _personaMenuButton(BuildContext context,
+      {required String title,
+      required IconData icon,
+      required VoidCallback onPressed}) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF1F4068),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 10,
+        shadowColor: Colors.black87,
       ),
+      onPressed: onPressed,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.white, size: 40),
-          SizedBox(width: 15),
+          Icon(icon, color: Colors.white, size: 28),
+          const SizedBox(width: 12),
           Text(
             title,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
+            style: const TextStyle(
+              fontSize: 16,
               fontWeight: FontWeight.bold,
-              shadows: [Shadow(blurRadius: 5, color: Colors.black, offset: Offset(2, 2))],
+              color: Colors.white,
+              letterSpacing: 1.1,
             ),
           ),
         ],

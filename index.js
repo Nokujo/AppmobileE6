@@ -1,8 +1,13 @@
+require('dotenv').config();
+const dbHost = process.env.DB_HOST;
+const dbUser = process.env.DB_USER;
+const dbPassword = process.env.DB_PASSWORD;
+const dbName = process.env.DB_NAME;
+
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-
 const app = express();
 const port = 3000;
 
@@ -11,10 +16,10 @@ app.use(bodyParser.json());
 
 // Configuration de la connexion à MySQL
 const db = mysql.createConnection({
-  host: '10.51.7.100', // Remplacez par l'IP de votre serveur MySQL
-  user: 'mustaphadmin',         // Nom d'utilisateur de la base de données
-  password: '1230',     // Mot de passe de la base de données
-  database: 'site commerce'            // Nom de la base de données
+  host: dbHost, // Remplacez par l'IP de votre serveur MySQL
+  user: dbUser,         // Nom d'utilisateur de la base de données
+  password: dbPassword,     // Mot de passe de la base de données
+  database: dbName            // Nom de la base de données
 });
 
 // Connexion à MySQL
