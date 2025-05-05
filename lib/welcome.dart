@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
-import 'inscription.dart';
 import 'newproduit.dart';
 import 'gererproduit.dart';
 import 'login.dart';
@@ -20,6 +18,14 @@ class _WelcomePageState extends State<WelcomePage> {
     setState(() {
       _selectedIndex = index;
     });
+    
+    // Handle navigation based on bottom navigation bar selection
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const NewProduit()),
+      );
+    }
   }
 
   @override
@@ -55,17 +61,7 @@ class _WelcomePageState extends State<WelcomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _personaMenuButton(
-                    context,
-                    title: "Ajouter un nouveau produit",
-                    icon: Icons.add,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => NewProduit()),
-                      );
-                    },
-                  ),
+                 
                   const SizedBox(height: 40),
                   _personaMenuButton(
                     context,
@@ -74,7 +70,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => GererProduit()),
+                        MaterialPageRoute(builder: (_) => const GererProduit()),
                       );
                     },
                   ),
@@ -86,7 +82,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => LoginPage()),
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
                       );
                     },
                   ),

@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'welcome.dart';
 
 class NewProduit extends StatefulWidget {
   const NewProduit({super.key});
@@ -19,8 +21,6 @@ class _NewProduitState extends State<NewProduit> {
   static const personaBlue = Color(0xFF0D1B2A);
   static const personaRed = Color(0xFFD90429);
   static const personaWhite = Color(0xFFF8F9FA);
-
-  get http => null;
 
   @override
   Widget build(BuildContext context) {
@@ -84,30 +84,50 @@ class _NewProduitState extends State<NewProduit> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      final response = await http.post(
-                        Uri.parse('http://localhost:3000/produit'),
-                        headers: {'Content-Type': 'application/json'},
-                        body: jsonEncode({
-                          'nom': _nomController.text,
-                          'description': _descriptionController.text,
-                          'prix': double.parse(_prixController.text),
-                          'quantite': int.parse(_quantiteController.text),
-                        }),
-                      );
-
-                      if (response.statusCode == 200) {
+                      try {
+                        final response = await http.post(
+                          Uri.parse('http://10.0.2.2:3000/produits'),
+                          headers: <String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                          },
+                          body: jsonEncode({
+                            'nom': _nomController.text,
+                            'description': _descriptionController.text,
+                            'prix': double.parse(_prixController.text),
+                            'quantite': int.parse(_quantiteController.text),
+                          }),
+                        );
+                        
+                        if (response.statusCode == 200) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Produit ajouté avec succès'),
+                              backgroundColor: personaRed,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          // Clear form after successful submission
+                          _nomController.clear();
+                          _prixController.clear();
+                          _descriptionController.clear();
+                          _quantiteController.clear();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Erreur: ${response.body}'),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Produit ajouté avec succès'),
-                            backgroundColor: personaRed,
+                          SnackBar(
+                            content: Text('Erreur de connexion: $e'),
+                            backgroundColor: Colors.red,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
-                        // Clear form after successful submission
-                        _nomController.clear();
-                        _prixController.clear();
-                        _descriptionController.clear();
-                        _quantiteController.clear();
                       }
                     }
                   },

@@ -1,61 +1,71 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'welcome.dart';
+import 'main.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _LoginPageState extends State<LoginPage> {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Demo HTTP',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const RegPage(title: 'Mon Titre'),
+    );
+  }
+}
+
+class RegPage extends StatefulWidget {
+  final String title;
+  const RegPage({super.key, required this.title});
+
+  @override
+  State<RegPage> createState() => _RegPageState();
+}
+
+class _RegPageState extends State<RegPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nomController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController nomController = TextEditingController();
+  final TextEditingController prenomController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  Future<void> _login() async {
-    final nom = _nomController.text;
-    final password = _passwordController.text;
+  Future<void> envoyerDemande() async {
+    const String apiUrl = "http://10.0.2.2:3000/user";
 
-    if (nom.isEmpty || password.isEmpty) {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "nom": nomController.text,
+        "prenom": prenomController.text,
+        "password": passwordController.text,
+      }),
+    );
+
+    print("Réponse de l'API : ${response.statusCode}");
+    if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez remplir tous les champs')),
-      );
-      return;
-    }
-
-    final url = Uri.parse('http://10.0.2.2:3000/login');
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'nom': nom,
-          'password': password,
-        }),
+        const SnackBar(content: Text("Demande envoyée avec succès.")),
       );
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Connexion réussie')),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const WelcomePage(title: 'Tableau de bord'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nom ou mot de passe incorrect')),
-        );
-      }
-    } catch (e) {
+      nomController.clear();
+      prenomController.clear();
+      emailController.clear();
+      passwordController.clear();
+    } else {
+      print("Erreur de l'API : ${response.body}");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur de connexion')),
+        const SnackBar(content: Text("Erreur lors de l'envoi de la demande.")),
       );
     }
   }
@@ -100,9 +110,8 @@ class _LoginPageState extends State<LoginPage> {
                       size: 80,
                       color: Colors.deepPurple,
                     ),
-                    const SizedBox(height: 20),
                     TextFormField(
-                      controller: _nomController,
+                      controller: nomController,
                       decoration: InputDecoration(
                         labelText: 'Nom',
                         border: OutlineInputBorder(
@@ -112,17 +121,34 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter nom';
+                          return 'Entrer un nom';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
-                      controller: _passwordController,
+                      controller: prenomController,
+                      decoration: InputDecoration(
+                        labelText: 'Prénom',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Entrer un prénom';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Mot de passe',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -130,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter password';
+                          return 'Entrez un mot de passe';
                         }
                         return null;
                       },
@@ -146,8 +172,12 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      onPressed: _login,
-                      child: const Text('Login'),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          envoyerDemande();
+                        }
+                      },
+                      child: const Text('Inscription'),
                     ),
                   ],
                 ),
