@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'welcome.dart';
 
 class NewProduit extends StatefulWidget {
   const NewProduit({super.key});
@@ -16,8 +15,8 @@ class _NewProduitState extends State<NewProduit> {
   final TextEditingController _prixController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _quantiteController = TextEditingController();
+  final TextEditingController _imgController = TextEditingController();
 
-  // Persona theme colors
   static const personaBlue = Color(0xFF0D1B2A);
   static const personaRed = Color(0xFFD90429);
   static const personaWhite = Color(0xFFF8F9FA);
@@ -80,6 +79,13 @@ class _NewProduitState extends State<NewProduit> {
                   icon: Icons.shopping_basket,
                   keyboardType: TextInputType.number,
                 ),
+                const SizedBox(height: 20),
+                buildPersonaTextField(
+                  controller: _imgController,
+                  label: 'URL de l\'image',
+                  icon: Icons.image,
+                  keyboardType: TextInputType.url,
+                ),
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () async {
@@ -87,17 +93,18 @@ class _NewProduitState extends State<NewProduit> {
                       try {
                         final response = await http.post(
                           Uri.parse('http://10.0.2.2:3000/produits'),
-                          headers: <String, String>{
-                            'Content-Type': 'application/json; charset=UTF-8',
+                          headers: {
+                            'Content-Type': 'application/json; charset=UTF-8'
                           },
                           body: jsonEncode({
                             'nom': _nomController.text,
                             'description': _descriptionController.text,
                             'prix': double.parse(_prixController.text),
                             'quantite': int.parse(_quantiteController.text),
+                            'img': _imgController.text,
                           }),
                         );
-                        
+
                         if (response.statusCode == 200) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -106,11 +113,11 @@ class _NewProduitState extends State<NewProduit> {
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
-                          // Clear form after successful submission
                           _nomController.clear();
                           _prixController.clear();
                           _descriptionController.clear();
                           _quantiteController.clear();
+                          _imgController.clear();
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -134,9 +141,7 @@ class _NewProduitState extends State<NewProduit> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: personaRed,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 15,
-                    ),
+                        horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -186,12 +191,8 @@ class _NewProduitState extends State<NewProduit> {
           filled: true,
           fillColor: Colors.transparent,
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Ce champ est requis';
-          }
-          return null;
-        },
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Ce champ est requis' : null,
       ),
     );
   }

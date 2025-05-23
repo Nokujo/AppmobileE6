@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'inscription.dart';
 import 'login.dart';
 
 void main() {
@@ -82,21 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildButton(
-                  context,
-                  label: 'Inscription',
-                  icon: Icons.person_add_alt_1,
-                  color: const Color(0xFF1B9AAA),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => RegPage(title: widget.title),
-                      ),
                     );
                   },
                 ),

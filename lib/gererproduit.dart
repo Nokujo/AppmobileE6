@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // Pour convertir les données JSON
-import 'welcome.dart'; 
+import 'dart:convert';
+import 'welcome.dart';
 
 class GererProduit extends StatefulWidget {
   const GererProduit({super.key});
@@ -16,16 +16,14 @@ class _GererProduitState extends State<GererProduit> {
   final TextEditingController _prixController = TextEditingController();
   final TextEditingController _quantiteController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _imgController = TextEditingController();
 
-  // Persona theme colors
   static const personaBlue = Color(0xFF0D1B2A);
   static const personaRed = Color(0xFFD90429);
   static const personaWhite = Color(0xFFF8F9FA);
 
-  // Liste des produits
   List<dynamic> _produits = [];
 
-  // Charger les produits depuis l'API
   Future<void> _loadProduits() async {
     final response = await http.get(Uri.parse('http://10.0.2.2:3000/produits'));
 
@@ -38,18 +36,16 @@ class _GererProduitState extends State<GererProduit> {
     }
   }
 
-  // Modifier un produit
   Future<void> _modifierProduit(int id) async {
     final response = await http.put(
       Uri.parse('http://10.0.2.2:3000/produits/$id'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({
         'nom': _nomController.text,
         'description': _descriptionController.text,
         'prix': double.parse(_prixController.text),
         'quantite': int.parse(_quantiteController.text),
+        'img': _imgController.text,
       }),
     );
 
@@ -61,11 +57,40 @@ class _GererProduitState extends State<GererProduit> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      _loadProduits(); // Recharger la liste des produits
+      _loadProduits();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur: ${response.body}'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  // 2.1) Appel HTTP DELETE côté Flutter
+  Future<void> _supprimerProduit(int id) async {
+    // Envoie la requête DELETE à ton API
+    final response = await http.delete(
+      Uri.parse('http://10.0.2.2:3000/produits/$id'),
+    );
+
+    // Si tout s'est bien passé, on affiche un SnackBar de confirmation
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Produit supprimé avec succès'),
+          backgroundColor: personaRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      // Sinon on affiche l'erreur
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Erreur lors de la suppression (code ${response.statusCode})'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -100,50 +125,63 @@ class _GererProduitState extends State<GererProduit> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              personaBlue,
-              personaBlue.withOpacity(0.8),
-            ],
+            colors: [personaBlue, personaBlue.withOpacity(0.8)],
           ),
         ),
         child: ListView.builder(
           itemCount: _produits.length,
           itemBuilder: (context, index) {
-            var produit = _produits[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: personaWhite.withOpacity(0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+            final produit = _produits[index];
+            return Dismissible(
+              key: Key(produit['id'].toString()),
+              direction: DismissDirection
+                  .startToEnd, // Suppression en swippant vers la droite
+              background: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 20),
+                color: personaRed,
+                child: const Icon(Icons.delete, color: Colors.white),
               ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(12),
-                title: Text(
-                  produit['nom'],
-                  style: const TextStyle(
-                    color: personaWhite,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+              onDismissed: (direction) async {
+                // 1) Suppression locale pour l'animation
+                setState(() {
+                  _produits.removeAt(index);
+                });
+                // 2) Suppression serveur
+                await _supprimerProduit(produit['id']);
+              },
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: personaWhite.withOpacity(0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                subtitle: Text(
-                  'Prix: ${produit['prix']}€ | Quantité: ${produit['quantite']}',
-                  style: TextStyle(
-                    color: personaWhite.withOpacity(0.7),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(12),
+                  title: Text(
+                    produit['nom'],
+                    style: const TextStyle(
+                      color: personaWhite,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: personaRed),
-                  onPressed: () {
-                    _nomController.text = produit['nom'];
-                    _prixController.text = produit['prix'].toString();
-                    _quantiteController.text = produit['quantite'].toString();
-                    _descriptionController.text = produit['description'];
+                  subtitle: Text(
+                    'Prix: ${produit['prix']}€ | Qté: ${produit['quantite']}',
+                    style: TextStyle(color: personaWhite.withOpacity(0.7)),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit, color: personaRed),
+                    onPressed: () {
+                      _nomController.text = produit['nom'];
+                      _prixController.text = produit['prix'].toString();
+                      _quantiteController.text = produit['quantite'].toString();
+                      _descriptionController.text = produit['description'];
+                      _imgController.text = produit['img'] ?? '';
 
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
                           backgroundColor: personaBlue,
                           title: const Text(
                             'Modifier le produit',
@@ -159,29 +197,35 @@ class _GererProduitState extends State<GererProduit> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   buildPersonaTextField(
-                                    controller: _nomController,
-                                    label: 'Nom du produit',
-                                    icon: Icons.inventory,
+                                    _nomController,
+                                    'Nom du produit',
+                                    Icons.inventory,
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 15),
                                   buildPersonaTextField(
-                                    controller: _prixController,
-                                    label: 'Prix',
-                                    icon: Icons.euro,
-                                    keyboardType: TextInputType.number,
+                                    _prixController,
+                                    'Prix',
+                                    Icons.euro,
+                                    TextInputType.number,
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 15),
                                   buildPersonaTextField(
-                                    controller: _descriptionController,
-                                    label: 'Description',
-                                    icon: Icons.description,
+                                    _descriptionController,
+                                    'Description',
+                                    Icons.description,
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 15),
                                   buildPersonaTextField(
-                                    controller: _quantiteController,
-                                    label: 'Quantité',
-                                    icon: Icons.shopping_basket,
-                                    keyboardType: TextInputType.number,
+                                    _quantiteController,
+                                    'Quantité',
+                                    Icons.shopping_basket,
+                                    TextInputType.number,
+                                  ),
+                                  const SizedBox(height: 15),
+                                  buildPersonaTextField(
+                                    _imgController,
+                                    'URL de l\'image',
+                                    Icons.link,
                                   ),
                                 ],
                               ),
@@ -189,9 +233,7 @@ class _GererProduitState extends State<GererProduit> {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
+                              onPressed: () => Navigator.of(context).pop(),
                               child: const Text(
                                 'Annuler',
                                 style: TextStyle(color: personaWhite),
@@ -219,10 +261,10 @@ class _GererProduitState extends State<GererProduit> {
                               ),
                             ),
                           ],
-                        );
-                      },
-                    );
-                  },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             );
@@ -232,12 +274,9 @@ class _GererProduitState extends State<GererProduit> {
     );
   }
 
-  Widget buildPersonaTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType? keyboardType,
-  }) {
+  Widget buildPersonaTextField(
+      TextEditingController controller, String label, IconData icon,
+      [TextInputType? keyboardType]) {
     return Container(
       decoration: BoxDecoration(
         color: personaWhite.withOpacity(0.1),
@@ -260,12 +299,8 @@ class _GererProduitState extends State<GererProduit> {
           filled: true,
           fillColor: Colors.transparent,
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Ce champ est requis';
-          }
-          return null;
-        },
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Ce champ est requis' : null,
       ),
     );
   }

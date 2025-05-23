@@ -12,14 +12,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nomController = TextEditingController();
+  final _nuserController = TextEditingController();
   final _passwordController = TextEditingController();
 
   Future<void> _login() async {
-    final nom = _nomController.text;
+    final nuser = _nuserController.text;
     final password = _passwordController.text;
 
-    if (nom.isEmpty || password.isEmpty) {
+    if (nuser.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Veuillez remplir tous les champs')),
       );
@@ -33,10 +33,12 @@ class _LoginPageState extends State<LoginPage> {
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'nom': nom,
+          'nuser': nuser,
           'password': password,
         }),
       );
+      print("Status code: ${response.statusCode}");
+      print("Body: ${response.body}");
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nom ou mot de passe incorrect')),
+          const SnackBar(content: Text('Pseudo ou mot de passe incorrect')),
         );
       }
     } catch (e) {
@@ -102,9 +104,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
-                      controller: _nomController,
+                      controller: _nuserController,
                       decoration: InputDecoration(
-                        labelText: 'Nom',
+                        labelText: 'Pseudo',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -112,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter nom';
+                          return 'Veuillez entrer un pseudo';
                         }
                         return null;
                       },
@@ -122,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Mot de passe',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -130,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter password';
+                          return 'Veuillez entrer un mot de passe';
                         }
                         return null;
                       },
@@ -147,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       onPressed: _login,
-                      child: const Text('Login'),
+                      child: const Text('Connexion'),
                     ),
                   ],
                 ),
