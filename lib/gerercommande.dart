@@ -45,7 +45,7 @@ class _GererCommandesState extends State<GererCommandes> {
     }
 
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:3000/commandes/$id'),
+      Uri.parse('http://10.0.2.2:3000/commande/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'etat': 2}),
     );

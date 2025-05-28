@@ -46,7 +46,6 @@ class _WelcomePageState extends State<WelcomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    // Welcome icon/logo area
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
